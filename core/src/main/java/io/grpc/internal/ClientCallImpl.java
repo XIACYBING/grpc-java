@@ -118,6 +118,9 @@ final class ClientCallImpl<ReqT, RespT> extends ClientCall<ReqT, RespT> {
     this.context = Context.current();
     this.unaryRequest = method.getType() == MethodType.UNARY
         || method.getType() == MethodType.SERVER_STREAMING;
+    // 实例化一个默认的compressorRegistry，持有GzipCompressor和默认的NoneCompressor，在每次实例化ClientCallImpl时赋值CompressorRegistry，并留出替换CompressorRegistry的入口
+    // 问题一：无法确认dubbo中tri协议的实例化是否是每次请求都实例化的？  解决：多次请求即可
+    // 问题二：如果是每次请求实例化，就可以考虑全局配置一个Compressor，在onData前压缩数据，并传递flag
     this.callOptions = callOptions;
     this.clientStreamProvider = clientStreamProvider;
     this.deadlineCancellationExecutor = deadlineCancellationExecutor;
